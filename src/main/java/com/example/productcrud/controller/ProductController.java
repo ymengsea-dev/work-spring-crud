@@ -3,7 +3,9 @@ package com.example.productcrud.controller;
 import com.example.productcrud.model.Product;
 import com.example.productcrud.model.request.ProductRequest;
 import com.example.productcrud.service.ProductService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class ProductController {
 
     private final ProductService productService;
@@ -27,7 +30,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public Optional<Product> getProductById(@PathVariable Integer id){
+    public Product getProductById(@PathVariable Integer id){
         return productService.getProductById(id);
     }
 

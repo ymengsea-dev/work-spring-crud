@@ -1,11 +1,17 @@
 package com.example.productcrud.model.reponse;
 
 import com.example.productcrud.constraint.Role;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
 import java.util.List;
 
+@Builder
+@Data
+@AllArgsConstructor
 public class UserResponse {
-    private String userId;
+    private Integer userId;
     private String userName;
-    private List<Role> roles;
+    private List<String> roles;
 }

@@ -1,5 +1,6 @@
 package com.example.productcrud.service.impl;
 
+import com.example.productcrud.exception.ProductNotFoundException;
 import com.example.productcrud.model.Product;
 import com.example.productcrud.model.request.ProductRequest;
 import com.example.productcrud.repository.ProductRepository;
@@ -8,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,15 +35,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Optional<Product> getProductById(Integer id) {
-        return productRepository.findById(id) ;
+    public Product getProductById(Integer id) {
+        return productRepository.findById(id)
+                .orElseThrow(()-> new ProductNotFoundException("Product with id of" + id + "not found"));
     }
 
     @Override
     public Product updateProduct(Integer id, ProductRequest productRequest) {
         // check if product exist
         Product product = productRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("product doesn't exist"));
+                .orElseThrow(()-> new ProductNotFoundException("Cannot update, product with id of " + id + "doesn't exist"));
 
         // set new value
         product.setName(productRequest.getName());
@@ -61,6 +62,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(Integer id) {
+        productRepository.findById(id)
+                .orElseThrow(()-> new ProductNotFoundException("Cannot delete, product with id of " + id + "doesn't exist"));
+
         productRepository.deleteById(id);
     }
 }

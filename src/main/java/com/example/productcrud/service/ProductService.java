@@ -4,14 +4,13 @@ import com.example.productcrud.model.Product;
 import com.example.productcrud.model.request.ProductRequest;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ProductService {
     List<Product> getProduct();
 
     Product addProduct(ProductRequest productRequest);
 
-    Optional<Product> getProductById(Integer id);
+    Product getProductById(Integer id);
 
     Product updateProduct(Integer id, ProductRequest productRequest);
 
