@@ -1,6 +1,5 @@
 package com.example.productcrud.model;
 
-import com.example.productcrud.constraint.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,8 +7,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,6 +31,10 @@ public class User {
     private String password;
 
     private List<String> roles;
+
+    private boolean active = true;
+
+    private Instant lockedUntil;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

@@ -12,11 +12,9 @@ import com.example.productcrud.model.request.RegisterRequest;
 import com.example.productcrud.service.UserService;
 import com.example.productcrud.service.impl.JwtService;
 import jakarta.validation.Valid;
-import jdk.swing.interop.SwingInterOpUtils;
 import lombok.RequiredArgsConstructor;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,7 +22,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
-import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/user")
@@ -36,9 +33,16 @@ public class UserController {
     private final JwtService jwtService;
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest registerRequest){
+    public ResponseEntity<ApiResponse<Void>> register(@Valid @RequestBody RegisterRequest registerRequest) {
         userService.register(registerRequest.getUsername(), registerRequest.getEmail(), registerRequest.getPassword());
-        return ResponseEntity.ok().build();
+        ApiResponse<Void> body = ApiResponse.<Void>builder()
+                .status(ApiStatus.builder()
+                        .code(ErrorCode.SUCCESS.toString())
+                        .message("Registration successful.")
+                        .build())
+                .data(null)
+                .build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
     @PostMapping("/login")
