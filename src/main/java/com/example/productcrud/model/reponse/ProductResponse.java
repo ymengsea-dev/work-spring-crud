@@ -1,5 +1,6 @@
 package com.example.productcrud.model.reponse;
 
+import com.example.productcrud.constraint.CurrencyCode;
 import com.example.productcrud.constraint.ProductStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +20,7 @@ public class ProductResponse {
     private String code;
     private String name;
     private Double price;
-    private Currency currency;
+    private CurrencyCode currency;
     private ProductStatus status;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;

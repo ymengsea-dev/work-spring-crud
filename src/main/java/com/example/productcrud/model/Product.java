@@ -1,5 +1,6 @@
 package com.example.productcrud.model;
 
+import com.example.productcrud.constraint.CurrencyCode;
 import com.example.productcrud.constraint.ProductStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -37,7 +38,7 @@ public class Product {
     @Positive
     private Double price;
 
-    private Currency currency;
+    private CurrencyCode currency;
 
     @Enumerated(EnumType.STRING)
     private ProductStatus status;

@@ -1,6 +1,5 @@
 package com.example.productcrud.model.reponse;
 
-import com.example.productcrud.constraint.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

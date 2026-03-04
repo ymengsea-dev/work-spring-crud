@@ -1,5 +1,6 @@
 package com.example.productcrud.model.request;
 
+import com.example.productcrud.constraint.CurrencyCode;
 import com.example.productcrud.constraint.ProductStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +21,7 @@ public class ProductRequest {
 
     private Double price;
 
-    private Currency currency;
+    private CurrencyCode currency;
 
     private ProductStatus status;
 
