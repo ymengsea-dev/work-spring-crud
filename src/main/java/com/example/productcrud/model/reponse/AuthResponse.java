@@ -14,6 +14,6 @@ import java.util.Date;
 public class AuthResponse {
     private  String accessToken;
     private String tokenType;
-    private Date expiresIn;
+    private Long expiresIn;
     private UserResponse user;
 }

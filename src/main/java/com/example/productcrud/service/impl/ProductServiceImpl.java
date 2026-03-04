@@ -1,5 +1,6 @@
 package com.example.productcrud.service.impl;
 
+import com.example.productcrud.exception.ProductAlreadyExistException;
 import com.example.productcrud.exception.ProductNotFoundException;
 import com.example.productcrud.model.Product;
 import com.example.productcrud.model.reponse.PagedResponse;
@@ -21,11 +22,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
 
-    @Override
-    public List<Product> getProduct() {
-        return productRepository.findAll();
-    }
-
+    // get all product
     @Override
     public PagedResponse<ProductResponse> getProductPage(Pageable pageable) {
         Page<Product> page = productRepository.findAll(pageable);
@@ -44,20 +41,32 @@ public class ProductServiceImpl implements ProductService {
     private ProductResponse toProductResponse(Product product) {
         return ProductResponse.builder()
                 .id("prd_" + product.getId())
-                .code(product.getCode())
+                .code(product.getProductCode())
                 .name(product.getName())
                 .price(product.getPrice())
                 .currency(product.getCurrency())
                 .status(product.getStatus())
+                .createAt(product.getCreatedAt())
+                .updateAt(product.getUpdatedAt())
                 .build();
     }
 
+    // add product
     @Override
     public Product addProduct(ProductRequest productRequest) {
+        // check if the product with the product code exist
+        productRepository.findByProductCode(productRequest.getCode())
+                .ifPresent(p -> {
+                    throw new ProductAlreadyExistException(
+                            "Product code already exists.",
+                            productRequest.getCode()
+                    );
+                });
+
         Product newProduct = Product.builder()
                 .name(productRequest.getName())
                 .description(productRequest.getDescription())
-                .code(productRequest.getCode())
+                .productCode(productRequest.getCode())
                 .price(productRequest.getPrice())
                 .currency(productRequest.getCurrency())
                 .status(productRequest.getStatus())
@@ -70,6 +79,7 @@ public class ProductServiceImpl implements ProductService {
         return toProductResponse(addProduct(productRequest));
     }
 
+    // get product by id
     @Override
     public Product getProductById(Integer id) {
         return productRepository.findById(id)
@@ -81,6 +91,7 @@ public class ProductServiceImpl implements ProductService {
         return toProductResponse(getProductById(id));
     }
 
+    // update product
     @Override
     public Product updateProduct(Integer id, ProductRequest productRequest) {
         // check if product exist
@@ -89,7 +100,7 @@ public class ProductServiceImpl implements ProductService {
 
         // set new value
         product.setName(productRequest.getName());
-        product.setCode(productRequest.getCode());
+        product.setProductCode(productRequest.getCode());
         product.setPrice(productRequest.getPrice());
         product.setDescription(productRequest.getDescription());
         product.setCurrency(productRequest.getCurrency());
@@ -106,6 +117,8 @@ public class ProductServiceImpl implements ProductService {
         return toProductResponse(updateProduct(id, productRequest));
     }
 
+
+    // delete product
     @Override
     public void deleteProduct(Integer id) {
         productRepository.findById(id)

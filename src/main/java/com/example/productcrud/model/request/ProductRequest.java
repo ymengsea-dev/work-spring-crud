@@ -1,12 +1,11 @@
 package com.example.productcrud.model.request;
 
-import com.example.productcrud.constraint.Currency;
 import com.example.productcrud.constraint.ProductStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.util.Currency;
 
 @Data
 @Builder

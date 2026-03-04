@@ -24,6 +24,7 @@ public class ProductController {
 
     private final ProductService productService;
 
+    // get product
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<ProductResponse>>> getProduct(
             @RequestParam(defaultValue = "0") int page,
@@ -43,6 +44,7 @@ public class ProductController {
         return ResponseEntity.ok(body);
     }
 
+    // add product
     @PostMapping
     public ResponseEntity<ApiResponse<ProductResponse>> addProduct(@RequestBody ProductRequest productRequest) {
         ProductResponse data = productService.addProductAndGetResponse(productRequest);
@@ -56,6 +58,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
+    // get product by ID
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductResponse>> getProductById(@PathVariable Integer id) {
         ProductResponse data = productService.getProductResponseById(id);
@@ -69,6 +72,7 @@ public class ProductController {
         return ResponseEntity.ok(body);
     }
 
+    // update productBy ID
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(
             @PathVariable Integer id,
@@ -84,6 +88,7 @@ public class ProductController {
         return ResponseEntity.ok(body);
     }
 
+    // delete product
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Integer id) {
         productService.deleteProduct(id);

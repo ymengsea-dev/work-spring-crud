@@ -22,11 +22,14 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with this email: " + email));
+
         if (!user.isActive()) {
             throw new AccountInactiveException("Account is inactive. Please contact administrator.");
         }
+
         if (user.getLockedUntil() != null && user.getLockedUntil().isAfter(Instant.now())) {
             throw new AccountLockedException(
                     "Account is locked due to multiple failed login attempts.",

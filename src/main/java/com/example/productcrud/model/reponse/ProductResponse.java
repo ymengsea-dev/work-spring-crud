@@ -1,11 +1,14 @@
 package com.example.productcrud.model.reponse;
 
-import com.example.productcrud.constraint.Currency;
 import com.example.productcrud.constraint.ProductStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.cglib.core.Local;
+
+import java.time.LocalDateTime;
+import java.util.Currency;
 
 @Data
 @Builder
@@ -18,4 +21,6 @@ public class ProductResponse {
     private Double price;
     private Currency currency;
     private ProductStatus status;
+    private LocalDateTime createAt;
+    private LocalDateTime updateAt;
 }

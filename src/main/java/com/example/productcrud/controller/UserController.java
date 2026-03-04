@@ -56,8 +56,7 @@ public class UserController {
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String token = jwtService.generateToken(userDetails);
-        Date expiresIn = new Date(System.currentTimeMillis() + 1000 * 60 * 60);
-
+        long expiresIn = 60 * 60;
         User user = userService.login(loginRequest.getEmail(), loginRequest.getPassword());
 
         UserResponse userResponse = UserResponse.builder()
