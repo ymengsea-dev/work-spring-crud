@@ -6,6 +6,7 @@ import com.example.productcrud.model.dto.reponse.ApiResponse;
 import com.example.productcrud.model.dto.reponse.ApiStatus;
 import com.example.productcrud.model.dto.reponse.PagedResponse;
 import com.example.productcrud.model.dto.reponse.ProductResponse;
+import com.example.productcrud.model.dto.request.CreateProductRequest;
 import com.example.productcrud.model.dto.request.ProductPatchRequest;
 import com.example.productcrud.model.dto.request.ProductRequest;
 import com.example.productcrud.service.ProductService;
@@ -37,18 +38,19 @@ public class ProductController {
             @RequestParam(defaultValue = "asc") String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
+        String keyword = (q != null) ? q.trim() : null;
         PagedResponse<ProductResponse> data;
-        boolean hasQuery = q != null && !q.isBlank();
+        boolean hasQuery = keyword != null && !keyword.isEmpty();
         boolean hasStatus = status != null;
 
         if (!hasQuery && !hasStatus) {
             data = productService.getProductPage(pageable);
         } else if (hasQuery && !hasStatus) {
-            data = productService.searchProducts(q, pageable);
+            data = productService.searchProducts(keyword, pageable);
         } else if (!hasQuery && hasStatus) {
             data = productService.getProductPageByStatus(status, pageable);
         } else {
-            data = productService.searchProductsByStatus(q, status, pageable);
+            data = productService.searchProductsByStatus(keyword, status, pageable);
         }
         ApiResponse<PagedResponse<ProductResponse>> body = ApiResponse.<PagedResponse<ProductResponse>>builder()
                 .status(ApiStatus.builder()
@@ -62,7 +64,7 @@ public class ProductController {
 
     // add product
     @PostMapping
-    public ResponseEntity<ApiResponse<ProductResponse>> addProduct(@RequestBody ProductRequest productRequest) {
+    public ResponseEntity<ApiResponse<ProductResponse>> addProduct(@RequestBody CreateProductRequest productRequest) {
         ProductResponse data = productService.addProductAndGetResponse(productRequest);
         ApiResponse<ProductResponse> body = ApiResponse.<ProductResponse>builder()
                 .status(ApiStatus.builder()

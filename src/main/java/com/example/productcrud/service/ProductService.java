@@ -4,6 +4,7 @@ import com.example.productcrud.constraint.ProductStatus;
 import com.example.productcrud.model.Product;
 import com.example.productcrud.model.dto.reponse.PagedResponse;
 import com.example.productcrud.model.dto.reponse.ProductResponse;
+import com.example.productcrud.model.dto.request.CreateProductRequest;
 import com.example.productcrud.model.dto.request.ProductPatchRequest;
 import com.example.productcrud.model.dto.request.ProductRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,9 +19,9 @@ public interface ProductService {
 
     PagedResponse<ProductResponse> searchProductsByStatus(String q, ProductStatus status, Pageable pageable);
 
-    Product addProduct(ProductRequest productRequest);
+    Product addProduct(CreateProductRequest productRequest);
 
-    ProductResponse addProductAndGetResponse(ProductRequest productRequest);
+    ProductResponse addProductAndGetResponse(CreateProductRequest productRequest);
 
     Product getProductById(Integer id);
 

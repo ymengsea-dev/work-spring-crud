@@ -40,7 +40,8 @@ public class Product {
     private CurrencyCode currency;
 
     @Enumerated(EnumType.STRING)
-    private ProductStatus status;
+    @Builder.Default
+    private ProductStatus status = ProductStatus.ACTIVE;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

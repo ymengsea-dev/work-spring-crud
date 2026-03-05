@@ -81,7 +81,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<Void>> handleInvalidCurrency(HttpMessageNotReadableException ex) {
-        if (ex.getMessage().contains("java.util.Currency")) {
+        String message = ex.getMessage();
+        if (message != null && message.contains("CurrencyCode")) {
             ApiResponse<Void> body = ApiResponse.<Void>builder()
                     .status(ApiStatus.builder()
                             .code(ErrorCode.INVALID_CURRENCY_FORMAT.toString())
@@ -90,9 +91,17 @@ public class GlobalExceptionHandler {
                     )
                     .data(null)
                     .build();
-            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
         }
-        return null;
+
+        ApiResponse<Void> body = ApiResponse.<Void>builder()
+                .status(ApiStatus.builder()
+                        .code(ErrorCode.INVALID_FIELD_FORMAT.toString())
+                        .message("Request body is invalid or malformed.")
+                        .build())
+                .data(null)
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
     @ExceptionHandler(ProductAlreadyExistException.class)
@@ -103,6 +112,18 @@ public class GlobalExceptionHandler {
                         .message(exception.getMessage())
                         .build())
                 .data(exception.getProductCode())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(ProductHasActiveOrdersException.class)
+    public ResponseEntity<ApiResponse<Void>> handleProductHasActiveOrders(ProductHasActiveOrdersException exception) {
+        ApiResponse<Void> body = ApiResponse.<Void>builder()
+                .status(ApiStatus.builder()
+                        .code(ErrorCode.PRODUCT_HAS_ACTIVE_ORDERS.toString())
+                        .message(exception.getMessage())
+                        .build())
+                .data(null)
                 .build();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }

@@ -3,9 +3,11 @@ package com.example.productcrud.service.impl;
 import com.example.productcrud.constraint.ProductStatus;
 import com.example.productcrud.exception.ProductAlreadyExistException;
 import com.example.productcrud.exception.ProductNotFoundException;
+import com.example.productcrud.exception.ProductHasActiveOrdersException;
 import com.example.productcrud.model.Product;
 import com.example.productcrud.model.dto.reponse.PagedResponse;
 import com.example.productcrud.model.dto.reponse.ProductResponse;
+import com.example.productcrud.model.dto.request.CreateProductRequest;
 import com.example.productcrud.model.dto.request.ProductPatchRequest;
 import com.example.productcrud.model.dto.request.ProductRequest;
 import com.example.productcrud.repository.ProductRepository;
@@ -42,8 +44,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public PagedResponse<ProductResponse> searchProducts(String q, Pageable pageable) {
+        String keyword = q == null ? null : q.trim();
         Page<Product> page = productRepository
-                .findByProductCodeContainingIgnoreCaseOrNameContainingIgnoreCase(q, q, pageable);
+                .findByProductCodeContainingIgnoreCaseOrNameContainingIgnoreCase(keyword, keyword, pageable);
         List<ProductResponse> items = page.getContent().stream()
                 .map(this::toProductResponse)
                 .collect(Collectors.toList());
@@ -73,9 +76,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public PagedResponse<ProductResponse> searchProductsByStatus(String q, ProductStatus status, Pageable pageable) {
+        String keyword = q == null ? null : q.trim();
         Page<Product> page = productRepository
                 .findByStatusAndProductCodeContainingIgnoreCaseOrStatusAndNameContainingIgnoreCase(
-                        status, q, status, q, pageable);
+                        status, keyword, status, keyword, pageable);
         List<ProductResponse> items = page.getContent().stream()
                 .map(this::toProductResponse)
                 .collect(Collectors.toList());
@@ -93,6 +97,7 @@ public class ProductServiceImpl implements ProductService {
                 .id("prd_" + product.getId())
                 .code(product.getProductCode())
                 .name(product.getName())
+                .description(product.getDescription())
                 .price(product.getPrice())
                 .currency(product.getCurrency())
                 .status(product.getStatus())
@@ -103,7 +108,7 @@ public class ProductServiceImpl implements ProductService {
 
     // add product
     @Override
-    public Product addProduct(ProductRequest productRequest) {
+    public Product addProduct(CreateProductRequest productRequest) {
         // check if the product with the product code exist
         productRepository.findByProductCode(productRequest.getCode())
                 .ifPresent(p -> {
@@ -119,13 +124,13 @@ public class ProductServiceImpl implements ProductService {
                 .productCode(productRequest.getCode())
                 .price(productRequest.getPrice())
                 .currency(productRequest.getCurrency())
-                .status(productRequest.getStatus())
+                .status(ProductStatus.ACTIVE)
                 .build();
         return productRepository.save(newProduct);
     }
 
     @Override
-    public ProductResponse addProductAndGetResponse(ProductRequest productRequest) {
+    public ProductResponse addProductAndGetResponse(CreateProductRequest productRequest) {
         return toProductResponse(addProduct(productRequest));
     }
 
@@ -187,8 +192,12 @@ public class ProductServiceImpl implements ProductService {
     // delete product
     @Override
     public void deleteProduct(Integer id) {
-        productRepository.findById(id)
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Cannot delete, product with id of " + id + "doesn't exist"));
+
+        if (product.getStatus() == ProductStatus.ACTIVE) {
+            throw new ProductHasActiveOrdersException("Product cannot be deleted because active orders exist.");
+        }
 
         productRepository.deleteById(id);
     }
