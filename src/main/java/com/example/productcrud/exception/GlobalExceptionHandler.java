@@ -1,9 +1,9 @@
 package com.example.productcrud.exception;
 
 import com.example.productcrud.constraint.ErrorCode;
-import com.example.productcrud.model.reponse.AccountLockedData;
-import com.example.productcrud.model.reponse.ApiResponse;
-import com.example.productcrud.model.reponse.ApiStatus;
+import com.example.productcrud.model.dto.reponse.AccountLockedData;
+import com.example.productcrud.model.dto.reponse.ApiResponse;
+import com.example.productcrud.model.dto.reponse.ApiStatus;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

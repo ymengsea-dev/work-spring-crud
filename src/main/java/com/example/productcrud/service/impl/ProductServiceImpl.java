@@ -1,11 +1,13 @@
 package com.example.productcrud.service.impl;
 
+import com.example.productcrud.constraint.ProductStatus;
 import com.example.productcrud.exception.ProductAlreadyExistException;
 import com.example.productcrud.exception.ProductNotFoundException;
 import com.example.productcrud.model.Product;
-import com.example.productcrud.model.reponse.PagedResponse;
-import com.example.productcrud.model.reponse.ProductResponse;
-import com.example.productcrud.model.request.ProductRequest;
+import com.example.productcrud.model.dto.reponse.PagedResponse;
+import com.example.productcrud.model.dto.reponse.ProductResponse;
+import com.example.productcrud.model.dto.request.ProductPatchRequest;
+import com.example.productcrud.model.dto.request.ProductRequest;
 import com.example.productcrud.repository.ProductRepository;
 import com.example.productcrud.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,54 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public PagedResponse<ProductResponse> getProductPage(Pageable pageable) {
         Page<Product> page = productRepository.findAll(pageable);
+        List<ProductResponse> items = page.getContent().stream()
+                .map(this::toProductResponse)
+                .collect(Collectors.toList());
+        return PagedResponse.<ProductResponse>builder()
+                .items(items)
+                .page(page.getNumber())
+                .size(page.getSize())
+                .totalItems(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .build();
+    }
+
+    @Override
+    public PagedResponse<ProductResponse> searchProducts(String q, Pageable pageable) {
+        Page<Product> page = productRepository
+                .findByProductCodeContainingIgnoreCaseOrNameContainingIgnoreCase(q, q, pageable);
+        List<ProductResponse> items = page.getContent().stream()
+                .map(this::toProductResponse)
+                .collect(Collectors.toList());
+        return PagedResponse.<ProductResponse>builder()
+                .items(items)
+                .page(page.getNumber())
+                .size(page.getSize())
+                .totalItems(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .build();
+    }
+
+    @Override
+    public PagedResponse<ProductResponse> getProductPageByStatus(ProductStatus status, Pageable pageable) {
+        Page<Product> page = productRepository.findByStatus(status, pageable);
+        List<ProductResponse> items = page.getContent().stream()
+                .map(this::toProductResponse)
+                .collect(Collectors.toList());
+        return PagedResponse.<ProductResponse>builder()
+                .items(items)
+                .page(page.getNumber())
+                .size(page.getSize())
+                .totalItems(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .build();
+    }
+
+    @Override
+    public PagedResponse<ProductResponse> searchProductsByStatus(String q, ProductStatus status, Pageable pageable) {
+        Page<Product> page = productRepository
+                .findByStatusAndProductCodeContainingIgnoreCaseOrStatusAndNameContainingIgnoreCase(
+                        status, q, status, q, pageable);
         List<ProductResponse> items = page.getContent().stream()
                 .map(this::toProductResponse)
                 .collect(Collectors.toList());
@@ -96,7 +146,7 @@ public class ProductServiceImpl implements ProductService {
     public Product updateProduct(Integer id, ProductRequest productRequest) {
         // check if product exist
         Product product = productRepository.findById(id)
-                .orElseThrow(()-> new ProductNotFoundException("Cannot update, product with id of " + id + "doesn't exist"));
+                .orElseThrow(() -> new ProductNotFoundException("Cannot update, product with id of " + id + "doesn't exist"));
 
         // set new value
         product.setName(productRequest.getName());
@@ -117,12 +167,28 @@ public class ProductServiceImpl implements ProductService {
         return toProductResponse(updateProduct(id, productRequest));
     }
 
+    @Override
+    public ProductResponse patchProduct(Integer id, ProductPatchRequest productPatchRequest) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Cannot update, product with id of " + id + "doesn't exist"));
+
+        if (productPatchRequest.getPrice() != null) {
+            product.setPrice(productPatchRequest.getPrice());
+        }
+        if (productPatchRequest.getStatus() != null) {
+            product.setStatus(productPatchRequest.getStatus());
+        }
+
+        productRepository.save(product);
+
+        return toProductResponse(product);
+    }
 
     // delete product
     @Override
     public void deleteProduct(Integer id) {
         productRepository.findById(id)
-                .orElseThrow(()-> new ProductNotFoundException("Cannot delete, product with id of " + id + "doesn't exist"));
+                .orElseThrow(() -> new ProductNotFoundException("Cannot delete, product with id of " + id + "doesn't exist"));
 
         productRepository.deleteById(id);
     }

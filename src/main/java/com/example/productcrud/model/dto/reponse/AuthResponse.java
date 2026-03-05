@@ -1,11 +1,9 @@
-package com.example.productcrud.model.reponse;
+package com.example.productcrud.model.dto.reponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
 
 @AllArgsConstructor
 @NoArgsConstructor

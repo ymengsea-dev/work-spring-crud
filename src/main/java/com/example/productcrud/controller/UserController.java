@@ -2,12 +2,12 @@ package com.example.productcrud.controller;
 
 import com.example.productcrud.constraint.ErrorCode;
 import com.example.productcrud.model.User;
-import com.example.productcrud.model.reponse.ApiResponse;
-import com.example.productcrud.model.reponse.ApiStatus;
-import com.example.productcrud.model.reponse.AuthResponse;
-import com.example.productcrud.model.reponse.UserResponse;
-import com.example.productcrud.model.request.LoginRequest;
-import com.example.productcrud.model.request.RegisterRequest;
+import com.example.productcrud.model.dto.reponse.ApiResponse;
+import com.example.productcrud.model.dto.reponse.ApiStatus;
+import com.example.productcrud.model.dto.reponse.AuthResponse;
+import com.example.productcrud.model.dto.reponse.UserResponse;
+import com.example.productcrud.model.dto.request.LoginRequest;
+import com.example.productcrud.model.dto.request.RegisterRequest;
 import com.example.productcrud.service.UserService;
 import com.example.productcrud.service.impl.JwtService;
 import jakarta.validation.Valid;

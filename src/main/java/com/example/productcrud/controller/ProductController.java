@@ -1,11 +1,13 @@
 package com.example.productcrud.controller;
 
 import com.example.productcrud.constraint.ErrorCode;
-import com.example.productcrud.model.reponse.ApiResponse;
-import com.example.productcrud.model.reponse.ApiStatus;
-import com.example.productcrud.model.reponse.PagedResponse;
-import com.example.productcrud.model.reponse.ProductResponse;
-import com.example.productcrud.model.request.ProductRequest;
+import com.example.productcrud.constraint.ProductStatus;
+import com.example.productcrud.model.dto.reponse.ApiResponse;
+import com.example.productcrud.model.dto.reponse.ApiStatus;
+import com.example.productcrud.model.dto.reponse.PagedResponse;
+import com.example.productcrud.model.dto.reponse.ProductResponse;
+import com.example.productcrud.model.dto.request.ProductPatchRequest;
+import com.example.productcrud.model.dto.request.ProductRequest;
 import com.example.productcrud.service.ProductService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -27,13 +29,27 @@ public class ProductController {
     // get product
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<ProductResponse>>> getProduct(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) ProductStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        PagedResponse<ProductResponse> data = productService.getProductPage(pageable);
+        PagedResponse<ProductResponse> data;
+        boolean hasQuery = q != null && !q.isBlank();
+        boolean hasStatus = status != null;
+
+        if (!hasQuery && !hasStatus) {
+            data = productService.getProductPage(pageable);
+        } else if (hasQuery && !hasStatus) {
+            data = productService.searchProducts(q, pageable);
+        } else if (!hasQuery && hasStatus) {
+            data = productService.getProductPageByStatus(status, pageable);
+        } else {
+            data = productService.searchProductsByStatus(q, status, pageable);
+        }
         ApiResponse<PagedResponse<ProductResponse>> body = ApiResponse.<PagedResponse<ProductResponse>>builder()
                 .status(ApiStatus.builder()
                         .code(ErrorCode.SUCCESS.toString())
@@ -82,6 +98,22 @@ public class ProductController {
                 .status(ApiStatus.builder()
                         .code(ErrorCode.SUCCESS.toString())
                         .message("Product updated successfully.")
+                        .build())
+                .data(data)
+                .build();
+        return ResponseEntity.ok(body);
+    }
+
+    // patch product
+    @PatchMapping("/{id}")
+    public ResponseEntity<ApiResponse<ProductResponse>> patchProduct(
+            @PathVariable Integer id,
+            @RequestBody ProductPatchRequest productPatchRequest) {
+        ProductResponse data = productService.patchProduct(id, productPatchRequest);
+        ApiResponse<ProductResponse> body = ApiResponse.<ProductResponse>builder()
+                .status(ApiStatus.builder()
+                        .code(ErrorCode.SUCCESS.toString())
+                        .message("Product partially updated successfully.")
                         .build())
                 .data(data)
                 .build();

@@ -1,12 +1,10 @@
-package com.example.productcrud.model.request;
+package com.example.productcrud.model.dto.request;
 
 import com.example.productcrud.constraint.CurrencyCode;
 import com.example.productcrud.constraint.ProductStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.Currency;
 
 @Data
 @Builder

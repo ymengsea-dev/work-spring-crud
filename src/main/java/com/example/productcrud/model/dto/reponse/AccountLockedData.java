@@ -1,4 +1,4 @@
-package com.example.productcrud.model.reponse;
+package com.example.productcrud.model.dto.reponse;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
