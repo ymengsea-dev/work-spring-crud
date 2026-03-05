@@ -4,6 +4,7 @@ import com.example.productcrud.service.impl.CustomUserDetailService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -15,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static org.springframework.security.config.Customizer.withDefaults;
 
 
 @Configuration
@@ -24,14 +24,17 @@ public class SecurityConfig {
     private final CustomUserDetailService customUserDetailService;
     private final JwtAuthFilter jwtAuthFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain filterChain (HttpSecurity http) throws  Exception {
         http
-                .cors(withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement( sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/v1/user/**",
@@ -39,7 +42,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        .requestMatchers( "/api/v1/products/**").hasRole("PRODUCT_READ")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/products/**").hasAnyRole("PRODUCT_READ", "PRODUCT_WRITE")
+                        .requestMatchers("/api/v1/products/**").hasRole("PRODUCT_WRITE")
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
