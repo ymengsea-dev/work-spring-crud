@@ -1,7 +1,6 @@
 package com.example.productcrud.controller;
 
 import com.example.productcrud.constraint.ErrorCode;
-import com.example.productcrud.constraint.Role;
 import com.example.productcrud.model.User;
 import com.example.productcrud.model.reponse.ApiResponse;
 import com.example.productcrud.model.reponse.ApiStatus;
@@ -21,7 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 
 @RestController
 @RequestMapping("api/v1/user")
@@ -46,11 +44,11 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest loginRequest){
+    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                    loginRequest.getEmail(),
-                    loginRequest.getPassword()
+                        loginRequest.getEmail(),
+                        loginRequest.getPassword()
                 )
         );
 

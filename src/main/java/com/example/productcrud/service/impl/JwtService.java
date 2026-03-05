@@ -19,6 +19,9 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secret;
 
+    @Value("${jwt.expiration}")
+    private Integer expiration;
+
     // generate token method
     public String generateToken(UserDetails userDetails){
         Map<String, Object> claims = new HashMap<>();
@@ -29,14 +32,14 @@ public class JwtService {
                 .toList()
         );
 
-        Date issuedAt = new Date();
-        Date expiration = new Date(System.currentTimeMillis() + 1000 * 60 * 60); // 1 hour
+        Date issuedAt = new Date(); // now
+        Date expireAt = new Date(issuedAt.getTime() + expiration * 1000);
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(issuedAt)
-                .setExpiration(expiration)
+                .setExpiration(expireAt)
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

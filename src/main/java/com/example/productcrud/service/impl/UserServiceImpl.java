@@ -40,6 +40,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(()-> new RuntimeException("User doesn't exist"));
 
         if (!passwordEncoder.matches(password, user.getPassword())){
+
             throw new RuntimeException("Invalid credential");
         }
 

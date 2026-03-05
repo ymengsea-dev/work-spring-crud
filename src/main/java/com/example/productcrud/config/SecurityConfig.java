@@ -32,16 +32,12 @@ public class SecurityConfig {
                 .sessionManagement( sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/v1/user/register",
-                                "/api/v1/user/login",
+                                "/api/v1/user/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/swagger-ui.html",
-                                "/swagger-resources/**",
-                                "/webjars/**"
+                                "/swagger-ui.html"
                         ).permitAll()
-                        .requestMatchers("/api/v1/user/**").authenticated()
-                        .requestMatchers("/api/v1/products/**").hasRole("PRODUCT_READ")
+                        .requestMatchers( "/api/v1/products/**").hasRole("PRODUCT_READ")
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
