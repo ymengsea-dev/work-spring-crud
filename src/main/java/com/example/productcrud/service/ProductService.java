@@ -11,25 +11,13 @@ import org.springframework.data.domain.Pageable;
 
 public interface ProductService {
 
-    PagedResponse<ProductResponse> getProductPage(Pageable pageable);
-
-    PagedResponse<ProductResponse> searchProducts(String q, Pageable pageable);
-
-    PagedResponse<ProductResponse> getProductPageByStatus(ProductStatus status, Pageable pageable);
-
-    PagedResponse<ProductResponse> searchProductsByStatus(String q, ProductStatus status, Pageable pageable);
+    Product getAllProduct(Pageable pageable);
 
     Product addProduct(CreateProductRequest productRequest);
 
-    ProductResponse addProductAndGetResponse(CreateProductRequest productRequest);
-
     Product getProductById(Integer id);
 
-    ProductResponse getProductResponseById(Integer id);
-
     Product updateProduct(Integer id, ProductRequest productRequest);
-
-    ProductResponse updateProductAndGetResponse(Integer id, ProductRequest productRequest);
 
     ProductResponse patchProduct(Integer id, ProductPatchRequest productPatchRequest);
 

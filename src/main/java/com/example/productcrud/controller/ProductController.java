@@ -12,9 +12,6 @@ import com.example.productcrud.model.dto.request.ProductRequest;
 import com.example.productcrud.service.ProductService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,28 +27,15 @@ public class ProductController {
     // get product
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<ProductResponse>>> getProduct(
-            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String query,
             @RequestParam(required = false) ProductStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir) {
-        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
-        Pageable pageable = PageRequest.of(page, size, sort);
-        String keyword = (q != null) ? q.trim() : null;
-        PagedResponse<ProductResponse> data;
-        boolean hasQuery = keyword != null && !keyword.isEmpty();
-        boolean hasStatus = status != null;
+            @RequestParam(defaultValue = "asc") String sortDir)
+    {
+//        PagedResponse<ProductResponse> data = productService
 
-        if (!hasQuery && !hasStatus) {
-            data = productService.getProductPage(pageable);
-        } else if (hasQuery && !hasStatus) {
-            data = productService.searchProducts(keyword, pageable);
-        } else if (!hasQuery && hasStatus) {
-            data = productService.getProductPageByStatus(status, pageable);
-        } else {
-            data = productService.searchProductsByStatus(keyword, status, pageable);
-        }
         ApiResponse<PagedResponse<ProductResponse>> body = ApiResponse.<PagedResponse<ProductResponse>>builder()
                 .status(ApiStatus.builder()
                         .code(ErrorCode.SUCCESS.toString())

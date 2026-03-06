@@ -129,22 +129,6 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.save(newProduct);
     }
 
-    @Override
-    public ProductResponse addProductAndGetResponse(CreateProductRequest productRequest) {
-        return toProductResponse(addProduct(productRequest));
-    }
-
-    // get product by id
-    @Override
-    public Product getProductById(Integer id) {
-        return productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("Product with id " + id + " not found"));
-    }
-
-    @Override
-    public ProductResponse getProductResponseById(Integer id) {
-        return toProductResponse(getProductById(id));
-    }
 
     // update product
     @Override
@@ -168,11 +152,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse updateProductAndGetResponse(Integer id, ProductRequest productRequest) {
-        return toProductResponse(updateProduct(id, productRequest));
-    }
-
-    @Override
     public ProductResponse patchProduct(Integer id, ProductPatchRequest productPatchRequest) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Cannot update, product with id of " + id + "doesn't exist"));
@@ -184,9 +163,17 @@ public class ProductServiceImpl implements ProductService {
             product.setStatus(productPatchRequest.getStatus());
         }
 
-        productRepository.save(product);
+        ProductResponse response = ProductResponse.builder()
+                .id("prd_" + product.getId())
+                .code(product.getProductCode())
+                .name(product.getName())
+                .description(product.getDescription())
+                .currency(product.getCurrency())
+                .price(product.getPrice())
+                .build();
 
-        return toProductResponse(product);
+        productRepository.save(product);
+        return response;
     }
 
     // delete product
