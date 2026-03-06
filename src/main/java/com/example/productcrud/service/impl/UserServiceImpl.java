@@ -1,10 +1,17 @@
 package com.example.productcrud.service.impl;
 
 import com.example.productcrud.constraint.Role;
+import com.example.productcrud.model.CustomUserDetail;
 import com.example.productcrud.model.User;
+import com.example.productcrud.model.dto.reponse.AuthResponse;
+import com.example.productcrud.model.dto.reponse.UserResponse;
 import com.example.productcrud.repository.UserRepository;
 import com.example.productcrud.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +24,8 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @Override
     public void register(String username, String email, String password) {
@@ -34,16 +43,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User login(String email, String password) {
-        // check user is present
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(()-> new RuntimeException("User doesn't exist"));
+    public AuthResponse login(String email, String password) {
 
-        if (!passwordEncoder.matches(password, user.getPassword())){
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        email,
+                        password
+                )
+        );
 
-            throw new RuntimeException("Invalid credential");
-        }
+        CustomUserDetail userDetails = (CustomUserDetail) authentication.getPrincipal();
+        String token = jwtService.generateToken(userDetails);
+        Long expiredIn = (long) (60 * 60);
 
-        return user;
+        AuthResponse response = AuthResponse.builder()
+            .accessToken(token)
+            .tokenType("Bearer")
+            .expiresIn(expiredIn)
+            .user(UserResponse.builder()
+                    .userId(userDetails.getUser().getId())
+                    .userName(userDetails.getUsername())
+                    .roles(userDetails.getUser().getRoles())
+                    .build())
+            .build();
+
+        return response;
     }
 }

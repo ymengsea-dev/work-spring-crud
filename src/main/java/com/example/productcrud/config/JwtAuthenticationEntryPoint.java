@@ -15,7 +15,7 @@ import java.io.IOException;
 
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
-
+    // this class handle user with no token or token expired // code : 401
     @Override
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
@@ -26,7 +26,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         ApiResponse<Object> body = ApiResponse.builder()
                 .status(ApiStatus.builder()
-                        .code(ErrorCode.INVALID_CREDENTIALS.toString())
+                        .code(ErrorCode.TOKEN_EXPIRED.toString())
                         .message("Unauthorized. Token is missing or invalid.")
                         .build())
                 .data(null)

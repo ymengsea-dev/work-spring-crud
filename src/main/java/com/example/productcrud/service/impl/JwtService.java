@@ -33,7 +33,7 @@ public class JwtService {
         );
 
         Date issuedAt = new Date(); // now
-        Date expireAt = new Date(issuedAt.getTime() + expiration * 1000);
+        Date expireAt = new Date(issuedAt.getTime() + expiration * 1000); // expiration in second but date work in millisecond
 
         return Jwts.builder()
                 .setClaims(claims)

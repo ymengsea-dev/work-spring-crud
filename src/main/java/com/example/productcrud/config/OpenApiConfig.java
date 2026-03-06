@@ -15,17 +15,17 @@ public class OpenApiConfig{
     public OpenAPI customOpenAPI() {
         final String securitySchemeName = "bearerAuth";
         return new OpenAPI()
-                .info(new Info()
-                        .title("Crud app")
-                        .version("1.0.0")
-                        .description("Crud API Documentation"))
-                .components(new Components()
-                        .addSecuritySchemes(securitySchemeName,
-                                new SecurityScheme()
-                                        .name(securitySchemeName)
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("bearer")
-                                        .bearerFormat("JWT")
-                                        .description("JWT Authentication. Enter your JWT token in the format: Bearer {token}")));
+            .info(new Info()
+                .title("Crud app")
+                .version("1.0.0")
+                .description("Crud API Documentation"))
+            .components(new Components()
+                .addSecuritySchemes(securitySchemeName,
+                    new SecurityScheme()
+                        .name(securitySchemeName)
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")
+                        .description("JWT Authentication. Enter your JWT token in the format: Bearer {token}")));
     }
 }

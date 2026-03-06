@@ -27,8 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
+
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<Void>> register(@Valid @RequestBody RegisterRequest registerRequest) {
@@ -45,38 +44,14 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()
-                )
-        );
-
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String token = jwtService.generateToken(userDetails);
-        long expiresIn = 60 * 60;
-        User user = userService.login(loginRequest.getEmail(), loginRequest.getPassword());
-
-        UserResponse userResponse = UserResponse.builder()
-                .userId(user.getId())
-                .userName(user.getUsername())
-                .roles(user.getRoles())
-                .build();
-
-        AuthResponse response = new AuthResponse();
-        response.setAccessToken(token);
-        response.setTokenType("Bearer");
-        response.setExpiresIn(expiresIn);
-        response.setUser(userResponse);
-
-        ApiResponse apiResponse = ApiResponse.builder()
+        AuthResponse authResponse = userService.login(loginRequest.getEmail(), loginRequest.getPassword());
+        ApiResponse<AuthResponse> body = ApiResponse.<AuthResponse>builder()
                 .status(ApiStatus.builder()
                         .code(ErrorCode.LOGIN_SUCCESS.toString())
                         .message("Login successful.")
                         .build())
-                .data(response)
+                .data(authResponse)
                 .build();
-
-        return ResponseEntity.ok(apiResponse);
+        return ResponseEntity.ok(body);
     }
 }

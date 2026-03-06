@@ -28,7 +28,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final CustomUserDetailService customUserDetailService;
 
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
@@ -40,43 +39,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String jwt = authHeader.substring(7);
-        try {
-            String email = jwtService.extractUsername(jwt);
+        String email = jwtService.extractUsername(jwt);
 
-            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null){
-                UserDetails userDetails = customUserDetailService.loadUserByUsername(email);
-                if (jwtService.isTokenValid(jwt, userDetails)){
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    userDetails.getAuthorities());
+        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null){
+            UserDetails userDetails = customUserDetailService.loadUserByUsername(email);
+            if (jwtService.isTokenValid(jwt, userDetails)){
+                UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities());
 
-                    authToken.setDetails(new WebAuthenticationDetailsSource()
-                            .buildDetails(request)
-                    );
+                authToken.setDetails(new WebAuthenticationDetailsSource()
+                    .buildDetails(request)
+                );
 
-                    SecurityContextHolder
-                            .getContext()
-                            .setAuthentication(authToken);
-                }
+                SecurityContextHolder
+                    .getContext()
+                    .setAuthentication(authToken);
             }
-            filterChain.doFilter(request, response);
-        } catch (ExpiredJwtException ex) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-
-            ApiResponse<Object> body = ApiResponse.builder()
-                    .status(ApiStatus.builder()
-                            .code(ErrorCode.TOKEN_EXPIRED.toString())
-                            .message("Your session has expired. Please login again.")
-                            .build())
-                    .data(null)
-                    .build();
-
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.writeValue(response.getWriter(), body);
         }
+        filterChain.doFilter(request, response);
     }
 
 }
