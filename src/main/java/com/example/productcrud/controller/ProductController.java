@@ -1,16 +1,16 @@
 package com.example.productcrud.controller;
 
-import com.example.productcrud.constraint.ErrorCode;
 import com.example.productcrud.constraint.ProductStatus;
+import com.example.productcrud.constraint.ResponseCode;
 import com.example.productcrud.model.dto.reponse.ApiResponse;
 import com.example.productcrud.model.dto.reponse.ApiStatus;
 import com.example.productcrud.model.dto.reponse.PagedResponse;
 import com.example.productcrud.model.dto.reponse.ProductResponse;
-import com.example.productcrud.model.dto.request.CreateProductRequest;
 import com.example.productcrud.model.dto.request.ProductPatchRequest;
 import com.example.productcrud.model.dto.request.ProductRequest;
 import com.example.productcrud.service.ProductService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +35,8 @@ public class ProductController {
         PagedResponse<ProductResponse> data = productService.getProductPage(query, status, page, size, sortBy, sortDir);
         ApiResponse<PagedResponse<ProductResponse>> body = ApiResponse.<PagedResponse<ProductResponse>>builder()
                 .status(ApiStatus.builder()
-                        .code(ErrorCode.SUCCESS.toString())
-                        .message("Product list retrieved successfully.")
+                        .code(ResponseCode.PRODUCT_RETRIEVED.name())
+                        .message(ResponseCode.PRODUCT_RETRIEVED.getMessage())
                         .build())
                 .data(data)
                 .build();
@@ -45,12 +45,12 @@ public class ProductController {
 
     // add product
     @PostMapping
-    public ResponseEntity<ApiResponse<ProductResponse>> addProduct(@RequestBody CreateProductRequest productRequest) {
+    public ResponseEntity<ApiResponse<ProductResponse>> addProduct(@Valid @RequestBody ProductRequest productRequest) {
         ProductResponse data = productService.addProductAndGetResponse(productRequest);
         ApiResponse<ProductResponse> body = ApiResponse.<ProductResponse>builder()
                 .status(ApiStatus.builder()
-                        .code(ErrorCode.SUCCESS.toString())
-                        .message("Product created successfully.")
+                        .code(ResponseCode.PRODUCT_CREATED.name())
+                        .message(ResponseCode.PRODUCT_CREATED.getMessage())
                         .build())
                 .data(data)
                 .build();
@@ -63,8 +63,8 @@ public class ProductController {
         ProductResponse data = productService.getProductResponseById(id);
         ApiResponse<ProductResponse> body = ApiResponse.<ProductResponse>builder()
                 .status(ApiStatus.builder()
-                        .code(ErrorCode.SUCCESS.toString())
-                        .message("Product retrieved successfully.")
+                        .code(ResponseCode.PRODUCT_RETRIEVED.name())
+                        .message(ResponseCode.PRODUCT_RETRIEVED.getMessage())
                         .build())
                 .data(data)
                 .build();
@@ -79,8 +79,8 @@ public class ProductController {
         ProductResponse data = productService.updateProductAndGetResponse(id, productRequest);
         ApiResponse<ProductResponse> body = ApiResponse.<ProductResponse>builder()
                 .status(ApiStatus.builder()
-                        .code(ErrorCode.SUCCESS.toString())
-                        .message("Product updated successfully.")
+                        .code(ResponseCode.PRODUCT_UPDATED.name())
+                        .message(ResponseCode.PRODUCT_UPDATED.getMessage())
                         .build())
                 .data(data)
                 .build();
@@ -95,8 +95,8 @@ public class ProductController {
         ProductResponse data = productService.patchProduct(id, productPatchRequest);
         ApiResponse<ProductResponse> body = ApiResponse.<ProductResponse>builder()
                 .status(ApiStatus.builder()
-                        .code(ErrorCode.SUCCESS.toString())
-                        .message("Product partially updated successfully.")
+                        .code(ResponseCode.PRODUCT_UPDATED.name())
+                        .message(ResponseCode.PRODUCT_UPDATED.getMessage())
                         .build())
                 .data(data)
                 .build();
@@ -109,8 +109,8 @@ public class ProductController {
         productService.deleteProduct(id);
         ApiResponse<Void> body = ApiResponse.<Void>builder()
                 .status(ApiStatus.builder()
-                        .code(ErrorCode.SUCCESS.toString())
-                        .message("Product deleted successfully.")
+                        .code(ResponseCode.PRODUCT_DELETED.name())
+                        .message(ResponseCode.PRODUCT_DELETED.getMessage())
                         .build())
                 .data(null)
                 .build();

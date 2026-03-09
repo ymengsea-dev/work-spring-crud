@@ -1,142 +1,70 @@
 package com.example.productcrud.exception;
 
-import com.example.productcrud.constraint.ErrorCode;
-import com.example.productcrud.model.dto.reponse.AccountLockedData;
-import com.example.productcrud.model.dto.reponse.ApiResponse;
-import com.example.productcrud.model.dto.reponse.ApiStatus;
-import io.jsonwebtoken.ExpiredJwtException;
-import org.springframework.http.HttpStatus;
+import com.example.productcrud.constraint.ExceptionCode;
+import com.example.productcrud.model.dto.reponse.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleProductNotFound(ProductNotFoundException exception) {
-        ApiResponse<Void> body = ApiResponse.<Void>builder()
+    // handle business exception
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiResponse<?>> handleBusinessException(BusinessException ex){
+        ExceptionCode exceptionCode = ex.getExceptionCode();
+
+        ApiResponse<?> body = ApiResponse.builder()
                 .status(ApiStatus.builder()
-                        .code(ErrorCode.PRODUCT_NOT_FOUND.toString())
-                        .message(exception.getMessage())
+                        .code(exceptionCode.toString())
+                        .message(exceptionCode.getMessage())
                         .build())
-                .data(null)
+                .data(ex.getData())
                 .build();
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+        return ResponseEntity.status(exceptionCode.getCode()).body(body);
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiResponse<Void>> handleInvalidCredentials(BadCredentialsException exception) {
-        ApiResponse<Void> body = ApiResponse.<Void>builder()
-                .status(ApiStatus.builder()
-                        .code(ErrorCode.INVALID_CREDENTIALS.toString())
-                        .message("Invalid username or password.")
-                        .build())
-                .data(null)
-                .build();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
-    }
+    // handle spring validation error
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<ValidationErrorResponse>> handleValidationException(MethodArgumentNotValidException ex){
 
-    @ExceptionHandler(AccountLockedException.class)
-    public ResponseEntity<ApiResponse<AccountLockedData>> handleAccountLocked(AccountLockedException exception) {
-        AccountLockedData data = AccountLockedData.builder()
-                .lockedUntil(exception.getLockedUntil())
-                .build();
-        ApiResponse<AccountLockedData> body = ApiResponse.<AccountLockedData>builder()
-                .status(ApiStatus.builder()
-                        .code(ErrorCode.ACCOUNT_LOCKED.toString())
-                        .message("Account is locked due to multiple failed login attempts.")
-                        .build())
-                .data(data)
-                .build();
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
-    }
-
-    @ExceptionHandler(AccountInactiveException.class)
-    public ResponseEntity<ApiResponse<Void>> handleAccountInactive(AccountInactiveException exception) {
-        ApiResponse<Void> body = ApiResponse.<Void>builder()
-                .status(ApiStatus.builder()
-                        .code(ErrorCode.ACCOUNT_INACTIVE.toString())
-                        .message("Account is inactive. Please contact administrator.")
-                        .build())
-                .data(null)
-                .build();
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
-    }
-
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleUsernameNotFound(UsernameNotFoundException exception) {
-        ApiResponse<Void> body = ApiResponse.<Void>builder()
-                .status(ApiStatus.builder()
-                        .code(ErrorCode.INVALID_CREDENTIALS.toString())
-                        .message("Invalid username or password.")
-                        .build())
-                .data(null)
-                .build();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
-    }
-
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiResponse<Void>> handleInvalidCurrency(HttpMessageNotReadableException ex) {
-        String message = ex.getMessage();
-        if (message != null && message.contains("CurrencyCode")) {
-            ApiResponse<Void> body = ApiResponse.<Void>builder()
-                    .status(ApiStatus.builder()
-                            .code(ErrorCode.INVALID_CURRENCY_FORMAT.toString())
-                            .message("Invalid Currency Code. Please use a valid ISO 4217 code (e.g., USD, KHR).")
+        // get message from the error field
+        List <FieldError> errors = ex
+                .getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map( e ->
+                    FieldError.builder()
+                            .field(e.getField())
+                            .message(e.getDefaultMessage())
                             .build()
-                    )
-                    .data(null)
-                    .build();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
-        }
+                ).toList();
 
-        ApiResponse<Void> body = ApiResponse.<Void>builder()
+        ApiResponse<ValidationErrorResponse> body = ApiResponse.<ValidationErrorResponse>builder()
                 .status(ApiStatus.builder()
-                        .code(ErrorCode.INVALID_FIELD_FORMAT.toString())
-                        .message("Request body is invalid or malformed.")
+                        .code(ExceptionCode.VALIDATION_ERROR.name()) // static bad request because validation
+                        .message(ExceptionCode.VALIDATION_ERROR.getMessage())
                         .build())
-                .data(null)
+                .data(ValidationErrorResponse.builder()
+                        .errors(errors)
+                        .build())
                 .build();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+
+        return ResponseEntity.status(400).body(body);
     }
 
-    @ExceptionHandler(ProductAlreadyExistException.class)
-    public ResponseEntity<ApiResponse<Object>> handleProductExit(ProductAlreadyExistException exception){
-        ApiResponse<Object> body = ApiResponse.builder()
+    // catch all fallback
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<?>> handleException(Exception ex){
+        ApiResponse<?> body = ApiResponse.builder()
                 .status(ApiStatus.builder()
-                        .code(ErrorCode.DUPLICATE_PRODUCT_CODE.toString())
-                        .message(exception.getMessage())
+                        .code(ExceptionCode.INTERNAL_SERVER_ERROR.name())
+                        .message(ExceptionCode.INTERNAL_SERVER_ERROR.getMessage())
                         .build())
-                .data(exception.getProductCode())
                 .build();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+        return ResponseEntity.status(500).body(body);
     }
-
-    @ExceptionHandler(ProductHasActiveOrdersException.class)
-    public ResponseEntity<ApiResponse<Void>> handleProductHasActiveOrders(ProductHasActiveOrdersException exception) {
-        ApiResponse<Void> body = ApiResponse.<Void>builder()
-                .status(ApiStatus.builder()
-                        .code(ErrorCode.PRODUCT_HAS_ACTIVE_ORDERS.toString())
-                        .message(exception.getMessage())
-                        .build())
-                .data(null)
-                .build();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
-    }
-    @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<ApiResponse<Object>> handleExpiredToken(ExpiredJwtException ex) {
-        ApiResponse<Object> body = ApiResponse.builder()
-                .status(ApiStatus.builder()
-                        .code("TOKEN_EXPIRED")
-                        .message("Your session has expired. Please login again.")
-                        .build())
-                .data(null)
-                .build();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
-    }
-
 }

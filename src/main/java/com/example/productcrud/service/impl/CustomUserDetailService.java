@@ -1,7 +1,7 @@
 package com.example.productcrud.service.impl;
 
-import com.example.productcrud.exception.AccountInactiveException;
-import com.example.productcrud.exception.AccountLockedException;
+import com.example.productcrud.constraint.ExceptionCode;
+import com.example.productcrud.exception.BusinessException;
 import com.example.productcrud.model.CustomUserDetail;
 import com.example.productcrud.model.User;
 import com.example.productcrud.repository.UserRepository;
@@ -27,14 +27,11 @@ public class CustomUserDetailService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with this email: " + email));
 
         if (!user.isActive()) {
-            throw new AccountInactiveException("Account is inactive. Please contact administrator.");
+            throw new BusinessException(ExceptionCode.ACCOUNT_INACTIVE);
         }
 
         if (user.getLockedUntil() != null && user.getLockedUntil().isAfter(Instant.now())) {
-            throw new AccountLockedException(
-                    "Account is locked due to multiple failed login attempts.",
-                    user.getLockedUntil()
-            );
+            throw new BusinessException(ExceptionCode.ACCOUNT_LOOKED);
         }
         return new CustomUserDetail(user);
     }

@@ -1,6 +1,8 @@
 package com.example.productcrud.service.impl;
 
+import com.example.productcrud.constraint.ExceptionCode;
 import com.example.productcrud.constraint.Role;
+import com.example.productcrud.exception.BusinessException;
 import com.example.productcrud.model.CustomUserDetail;
 import com.example.productcrud.model.User;
 import com.example.productcrud.model.dto.reponse.AuthResponse;
@@ -8,7 +10,9 @@ import com.example.productcrud.model.dto.reponse.UserResponse;
 import com.example.productcrud.repository.UserRepository;
 import com.example.productcrud.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,6 +31,9 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
+    @Value("${jwt.expiration}")
+    String expiredIn;
+
     @Override
     public void register(String username, String email, String password) {
         // check use already exist
@@ -44,29 +51,32 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AuthResponse login(String email, String password) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            email,
+                            password
+                    )
+            );
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        email,
-                        password
-                )
-        );
+            CustomUserDetail userDetails = (CustomUserDetail) authentication.getPrincipal();
+            String token = jwtService.generateToken(userDetails);
+//            Long expiredIn = (long) (60 * 60);
 
-        CustomUserDetail userDetails = (CustomUserDetail) authentication.getPrincipal();
-        String token = jwtService.generateToken(userDetails);
-        Long expiredIn = (long) (60 * 60);
+            AuthResponse response = AuthResponse.builder()
+                    .accessToken(token)
+                    .tokenType("Bearer")
+                    .expiresIn(Long.valueOf(expiredIn))
+                    .user(UserResponse.builder()
+                            .userId(userDetails.getUser().getId())
+                            .userName(userDetails.getUsername())
+                            .roles(userDetails.getUser().getRoles())
+                            .build())
+                    .build();
 
-        AuthResponse response = AuthResponse.builder()
-            .accessToken(token)
-            .tokenType("Bearer")
-            .expiresIn(expiredIn)
-            .user(UserResponse.builder()
-                    .userId(userDetails.getUser().getId())
-                    .userName(userDetails.getUsername())
-                    .roles(userDetails.getUser().getRoles())
-                    .build())
-            .build();
-
-        return response;
+            return response;
+        } catch (BadCredentialsException exception) {
+            throw  new BusinessException(ExceptionCode.INVALID_CREDENTIAL);
+        }
     }
 }

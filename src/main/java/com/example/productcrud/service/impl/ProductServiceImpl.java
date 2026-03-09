@@ -1,13 +1,11 @@
 package com.example.productcrud.service.impl;
 
+import com.example.productcrud.constraint.ExceptionCode;
 import com.example.productcrud.constraint.ProductStatus;
-import com.example.productcrud.exception.ProductAlreadyExistException;
-import com.example.productcrud.exception.ProductHasActiveOrdersException;
-import com.example.productcrud.exception.ProductNotFoundException;
+import com.example.productcrud.exception.BusinessException;
 import com.example.productcrud.model.Product;
 import com.example.productcrud.model.dto.reponse.PagedResponse;
 import com.example.productcrud.model.dto.reponse.ProductResponse;
-import com.example.productcrud.model.dto.request.CreateProductRequest;
 import com.example.productcrud.model.dto.request.ProductPatchRequest;
 import com.example.productcrud.model.dto.request.ProductRequest;
 import com.example.productcrud.repository.ProductRepository;
@@ -55,13 +53,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse addProductAndGetResponse(CreateProductRequest productRequest) {
+    public ProductResponse addProductAndGetResponse(ProductRequest productRequest) {
         productRepository.findByProductCode(productRequest.getCode())
                 .ifPresent(p -> {
-                    throw new ProductAlreadyExistException(
-                            "Product code already exists.",
+                    throw new BusinessException(
+                            ExceptionCode.PRODUCT_ALREADY_EXISTS,
                             productRequest.getCode()
-                    );
+                            );
                 });
 
         Product product = Product.builder()
@@ -79,14 +77,14 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse getProductResponseById(Integer id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("Product with id " + id + " not found."));
+                .orElseThrow(() -> new BusinessException(ExceptionCode.PRODUCT_NOT_FOUND, id));
         return toProductResponse(product);
     }
 
     @Override
     public ProductResponse updateProductAndGetResponse(Integer id, ProductRequest productRequest) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("Cannot update, product with id " + id + " does not exist."));
+                .orElseThrow(() -> new BusinessException(ExceptionCode.PRODUCT_NOT_FOUND, id));
 
         product.setName(productRequest.getName());
         product.setProductCode(productRequest.getCode());
@@ -102,7 +100,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse patchProduct(Integer id, ProductPatchRequest productPatchRequest) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("Cannot update, product with id " + id + " does not exist."));
+                .orElseThrow(() -> new BusinessException(ExceptionCode.PRODUCT_NOT_FOUND, id));
 
         if (productPatchRequest.getPrice() != null) {
             product.setPrice(productPatchRequest.getPrice());
@@ -118,10 +116,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(Integer id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("Cannot delete, product with id " + id + " does not exist."));
+                .orElseThrow(() -> new BusinessException(ExceptionCode.PRODUCT_NOT_FOUND, id));
 
         if (product.getStatus() == ProductStatus.ACTIVE) {
-            throw new ProductHasActiveOrdersException("Product cannot be deleted because active orders exist.");
+            throw new BusinessException(ExceptionCode.PRODUCT_HAS_ACTIVE_ORDERS, id);
         }
 
         productRepository.deleteById(id);

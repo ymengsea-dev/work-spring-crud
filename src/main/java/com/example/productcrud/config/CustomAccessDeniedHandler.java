@@ -1,10 +1,9 @@
 package com.example.productcrud.config;
 
-import com.example.productcrud.constraint.ErrorCode;
+import com.example.productcrud.constraint.ExceptionCode;
 import com.example.productcrud.model.dto.reponse.ApiResponse;
 import com.example.productcrud.model.dto.reponse.ApiStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
@@ -26,8 +25,8 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
         ApiResponse<Object> body = ApiResponse.builder()
                 .status(ApiStatus.builder()
-                        .code(ErrorCode.ACCESS_DENIED.toString())
-                        .message("You do not have permission to perform this action.")
+                        .code(ExceptionCode.ACCESS_DENIED.name())
+                        .message(ExceptionCode.ACCESS_DENIED.getMessage())
                         .build())
                 .data(null)
                 .build();

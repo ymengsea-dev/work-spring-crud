@@ -25,16 +25,15 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotBlank
-    @Column(name = "product_code")
+    @Column(name = "product_code", nullable = false, unique = true)
     private String productCode;
 
-    @NotBlank
+    @Column(nullable = false)
     private String name;
 
     private String description;
 
-    @Positive
+    @Column(nullable = false)
     private Double price;
 
     private CurrencyCode currency;

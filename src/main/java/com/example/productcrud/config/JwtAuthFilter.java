@@ -2,11 +2,6 @@ package com.example.productcrud.config;
 
 import com.example.productcrud.service.impl.CustomUserDetailService;
 import com.example.productcrud.service.impl.JwtService;
-import com.example.productcrud.constraint.ErrorCode;
-import com.example.productcrud.model.dto.reponse.ApiResponse;
-import com.example.productcrud.model.dto.reponse.ApiStatus;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
