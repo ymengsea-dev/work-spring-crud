@@ -9,13 +9,17 @@ import com.example.productcrud.model.dto.reponse.ProductResponse;
 import com.example.productcrud.model.dto.request.ProductPatchRequest;
 import com.example.productcrud.model.dto.request.ProductRequest;
 import com.example.productcrud.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Product Controller")
 @RestController
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
@@ -24,6 +28,7 @@ public class ProductController {
 
     private final ProductService productService;
 
+    @Operation(summary = "Get all product")
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<ProductResponse>>> getProduct(
             @RequestParam(required = false) String query,
@@ -44,6 +49,7 @@ public class ProductController {
     }
 
     // add product
+    @Operation(summary = "Add new product")
     @PostMapping
     public ResponseEntity<ApiResponse<ProductResponse>> addProduct(@Valid @RequestBody ProductRequest productRequest) {
         ProductResponse data = productService.addProductAndGetResponse(productRequest);
@@ -58,6 +64,7 @@ public class ProductController {
     }
 
     // get product by ID
+    @Operation(summary = "Get product by ID")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductResponse>> getProductById(@PathVariable Integer id) {
         ProductResponse data = productService.getProductResponseById(id);
@@ -72,6 +79,7 @@ public class ProductController {
     }
 
     // update productBy ID
+    @Operation(summary = "Update product")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(
             @PathVariable Integer id,
@@ -88,6 +96,7 @@ public class ProductController {
     }
 
     // patch product
+    @Operation(summary = "Update product field")
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductResponse>> patchProduct(
             @PathVariable Integer id,
@@ -104,6 +113,7 @@ public class ProductController {
     }
 
     // delete product
+    @Operation(summary = "Delete product")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Integer id) {
         productService.deleteProduct(id);
