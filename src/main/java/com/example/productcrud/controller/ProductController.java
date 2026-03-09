@@ -24,7 +24,6 @@ public class ProductController {
 
     private final ProductService productService;
 
-    // get product
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<ProductResponse>>> getProduct(
             @RequestParam(required = false) String query,
@@ -32,10 +31,8 @@ public class ProductController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir)
-    {
-//        PagedResponse<ProductResponse> data = productService
-
+            @RequestParam(defaultValue = "asc") String sortDir) {
+        PagedResponse<ProductResponse> data = productService.getProductPage(query, status, page, size, sortBy, sortDir);
         ApiResponse<PagedResponse<ProductResponse>> body = ApiResponse.<PagedResponse<ProductResponse>>builder()
                 .status(ApiStatus.builder()
                         .code(ErrorCode.SUCCESS.toString())
