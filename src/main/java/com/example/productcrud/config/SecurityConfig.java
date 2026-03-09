@@ -1,5 +1,6 @@
 package com.example.productcrud.config;
 
+import com.example.productcrud.service.impl.CustomOAuth2UserService;
 import com.example.productcrud.service.impl.CustomUserDetailService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,9 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final JwtAuthExpirationHandler jwtAuthExpirationHandler;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler auth2SuccessHandler;
+    private final OAuth2FailureHandler auth2FailureHandler;
 
     @Bean
     public SecurityFilterChain filterChain (HttpSecurity http) {
@@ -48,7 +52,13 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/products/**")
                     .hasRole("PRODUCT_WRITE")
                 .anyRequest().authenticated()
-            )
+            ).oauth2Login(oauth -> oauth.
+                    userInfoEndpoint(userInfo -> userInfo
+                            .userService(customOAuth2UserService)
+                    )
+                    .successHandler(auth2SuccessHandler)
+                    .failureHandler(auth2FailureHandler)
+                )
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

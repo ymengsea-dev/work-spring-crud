@@ -1,5 +1,6 @@
 package com.example.productcrud.model;
 
+import com.example.productcrud.constraint.AuthProvider;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,10 +28,13 @@ public class User {
     @Column( unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "password")
     private String password;
 
     private List<String> roles;
+
+    @Column(name = "auth_provider")
+    private AuthProvider authProvider;
 
     private boolean active = true;
 

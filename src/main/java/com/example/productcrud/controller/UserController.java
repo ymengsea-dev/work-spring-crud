@@ -9,11 +9,14 @@ import com.example.productcrud.model.dto.request.RegisterRequest;
 import com.example.productcrud.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @Tag(name = "Authentication")
 @RestController
@@ -49,5 +52,11 @@ public class UserController {
                 .data(authResponse)
                 .build();
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
+    @Operation(summary = "Login with google")
+    @GetMapping("/google")
+    public void redirectToGoogle(HttpServletResponse response) throws IOException {
+        response.sendRedirect("/oauth2/authorization/google");
     }
 }

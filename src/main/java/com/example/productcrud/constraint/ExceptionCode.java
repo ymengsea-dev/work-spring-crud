@@ -6,6 +6,7 @@ import lombok.*;
 @AllArgsConstructor
 public enum ExceptionCode {
     // user exceptions
+    OAUTH2_LOGIN_FAILED(401,"Unable to login with google"),
     USER_NOT_FOUND(404, "User not found"), // 404: not found
     USER_ALREADY_EXISTS(409, "User already exists"), // 409: conflict
     USER_UNAUTHORIZED(401, "Unauthorized access"), // 401: unauthorized

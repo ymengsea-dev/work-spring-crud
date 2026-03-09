@@ -1,5 +1,6 @@
 package com.example.productcrud.service.impl;
 
+import com.example.productcrud.constraint.AuthProvider;
 import com.example.productcrud.constraint.ExceptionCode;
 import com.example.productcrud.constraint.Role;
 import com.example.productcrud.exception.BusinessException;
@@ -46,6 +47,7 @@ public class UserServiceImpl implements UserService {
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
         user.setRoles(new ArrayList<>(List.of(Role.PRODUCT_READ.toString())));
+        user.setAuthProvider(AuthProvider.LOCAL);
         userRepository.save(user);
     }
 
