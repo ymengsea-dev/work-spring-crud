@@ -112,4 +112,10 @@ public class UserServiceImpl implements UserService {
 
         return response;
     }
+
+    @Override
+    public void logout(RefreshTokenRequest request) {
+        refreshTokenService.findByToken(request.getRefreshToken())
+                .ifPresent(token -> {refreshTokenService.revokeByUser(token.getUser());});
+    }
 }

@@ -71,6 +71,19 @@ public class UserController {
        return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(@Valid @RequestBody RefreshTokenRequest request ){
+        userService.logout(request);
+        ApiResponse<Void> body = ApiResponse.<Void>builder()
+                .status(ApiStatus.builder()
+                        .code(ResponseCode.LOGOUT_SUCCESS.name())
+                        .message(ResponseCode.LOGOUT_SUCCESS.getMessage())
+                        .build())
+                .data(null)
+                .build();
+        return ResponseEntity.status(HttpStatus.OK).body(body);
+    }
+
     @Operation(summary = "Login with google")
     @GetMapping("/google")
     public void redirectToGoogle(HttpServletResponse response) throws IOException {
