@@ -4,8 +4,11 @@ import com.example.productcrud.constraint.ResponseCode;
 import com.example.productcrud.model.dto.reponse.ApiResponse;
 import com.example.productcrud.model.dto.reponse.ApiStatus;
 import com.example.productcrud.model.dto.reponse.AuthResponse;
+import com.example.productcrud.model.dto.reponse.RefreshTokenResponse;
 import com.example.productcrud.model.dto.request.LoginRequest;
+import com.example.productcrud.model.dto.request.RefreshTokenRequest;
 import com.example.productcrud.model.dto.request.RegisterRequest;
+import com.example.productcrud.service.RefreshTokenService;
 import com.example.productcrud.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,6 +55,20 @@ public class UserController {
                 .data(authResponse)
                 .build();
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
+    @Operation(summary = "refresh token")
+    @PostMapping("/refresh-token")
+    public ResponseEntity<ApiResponse<RefreshTokenResponse>> refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest){
+        RefreshTokenResponse response = userService.refreshToken(refreshTokenRequest);
+        ApiResponse<RefreshTokenResponse> body = ApiResponse.<RefreshTokenResponse>builder()
+                .status(ApiStatus.builder()
+                        .code(ResponseCode.TOKEN_REFRESHED.name())
+                        .message(ResponseCode.TOKEN_REFRESHED.getMessage())
+                        .build())
+                .data(response)
+                .build();
+       return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
     @Operation(summary = "Login with google")

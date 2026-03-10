@@ -13,6 +13,9 @@ public enum ExceptionCode {
     INVALID_CREDENTIAL(401, "Invalid username or password"),
     ACCOUNT_INACTIVE(401, "Account is inactive"),
     ACCOUNT_LOOKED(401, "Account is locked"),
+    REFRESH_TOKEN_EXPIRED(400, "Refresh token was expired. Please make a new sign in request"),
+    REFRESH_TOKEN_NOT_FOUND(400, "Refresh token not found."),
+    REFRESH_TOKEN_REVOKED(400, "Refresh token has been revoked"),
 
     // product exceptions
     PRODUCT_NOT_FOUND(404, "Product not found"),

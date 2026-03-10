@@ -34,6 +34,7 @@ public class User {
     private List<String> roles;
 
     @Column(name = "auth_provider")
+    @Enumerated(EnumType.STRING)
     private AuthProvider authProvider;
 
     private boolean active = true;
