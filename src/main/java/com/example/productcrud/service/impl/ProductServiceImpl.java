@@ -11,6 +11,10 @@ import com.example.productcrud.model.dto.request.ProductRequest;
 import com.example.productcrud.repository.ProductRepository;
 import com.example.productcrud.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,12 +36,13 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
 
     @Override
+    @Cacheable(value = "products", key = "'all'")
     public PagedResponse<ProductResponse> getProductPage(String query, ProductStatus status, int page, int size, String sortBy, String sortDir) {
         String keyword = (query == null || query.isBlank()) ? null : query.trim();
         String orderBy = sortBy != null && ALLOWED_SORT_FIELDS.contains(sortBy) ? sortBy : "id";
         Sort.Direction direction = "desc".equalsIgnoreCase(sortDir) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, orderBy));
-
+        System.out.println(">>> HIT DATABASE for get all");
         Page<Product> productPage = productRepository.findProducts(keyword, status, pageable);
         List<ProductResponse> items = productPage.getContent().stream()
                 .map(this::toProductResponse)
@@ -53,6 +58,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CacheEvict(value = "products", key = "'all'")
     public ProductResponse addProductAndGetResponse(ProductRequest productRequest) {
         productRepository.findByProductCode(productRequest.getCode())
                 .ifPresent(p -> {
@@ -75,6 +81,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "products", key = "#id")
     public ProductResponse getProductResponseById(Integer id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ExceptionCode.PRODUCT_NOT_FOUND, id));
@@ -82,6 +89,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Caching( // UPDATE — update single cache + evict 'all' list
+            put = @CachePut(value = "products", key = "#id"),
+            evict = @CacheEvict(value = "products", key = "'all'")
+    )
     public ProductResponse updateProductAndGetResponse(Integer id, ProductRequest productRequest) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ExceptionCode.PRODUCT_NOT_FOUND, id));
@@ -114,6 +125,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "products", key = "#id"),
+            @CacheEvict(value = "products", key = "'all'")
+    })
     public void deleteProduct(Integer id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ExceptionCode.PRODUCT_NOT_FOUND, id));

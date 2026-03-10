@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.cglib.core.Local;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Currency;
 
@@ -15,7 +16,7 @@ import java.util.Currency;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductResponse {
+public class ProductResponse implements Serializable {
     private String id;
     private String code;
     private String name;

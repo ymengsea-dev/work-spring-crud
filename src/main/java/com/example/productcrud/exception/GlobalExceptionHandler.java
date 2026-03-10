@@ -59,6 +59,7 @@ public class GlobalExceptionHandler {
     // catch all fallback
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<?>> handleException(Exception ex){
+        ex.printStackTrace();
         ApiResponse<?> body = ApiResponse.builder()
                 .status(ApiStatus.builder()
                         .code(ExceptionCode.INTERNAL_SERVER_ERROR.name())

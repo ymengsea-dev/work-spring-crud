@@ -9,6 +9,5 @@ import lombok.Data;
 @Builder
 public class RefreshTokenResponse {
     private String accessToken;
-    private String refreshToken;
     private String tokenType;
 }

@@ -100,13 +100,11 @@ public class UserServiceImpl implements UserService {
         refreshTokenService.verifyExpiration(refreshToken);
         User user = refreshToken.getUser();
 
-        // give new access token and new refresh token
-        RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user.getId());
+        // give new access token
         String newAccessToken = jwtService.generateToken(new CustomUserDetail(user));
 
         RefreshTokenResponse response = RefreshTokenResponse.builder()
                 .accessToken(newAccessToken)
-                .refreshToken(newRefreshToken.getToken())
                 .tokenType("Bearer")
                 .build();
 

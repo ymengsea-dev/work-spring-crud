@@ -1,6 +1,8 @@
 package com.example.productcrud.constraint;
 
-public enum ProductStatus {
+import java.io.Serializable;
+
+public enum ProductStatus implements Serializable {
     ACTIVE,
     INACTIVE
 }

@@ -2,9 +2,11 @@ package com.example.productcrud.config;
 
 import com.example.productcrud.model.CustomOAuth2User;
 import com.example.productcrud.model.CustomUserDetail;
+import com.example.productcrud.model.RefreshToken;
 import com.example.productcrud.model.User;
 import com.example.productcrud.model.dto.reponse.AuthResponse;
 import com.example.productcrud.model.dto.reponse.UserResponse;
+import com.example.productcrud.service.RefreshTokenService;
 import com.example.productcrud.service.impl.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,6 +22,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
 
     @Value("${jwt.expiration}")
     private String expiredIn;
@@ -33,9 +36,11 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         User user = oAuth2User.getUser();
 
         String token = jwtService.generateToken(new CustomUserDetail(user));
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
 
         AuthResponse authResponse = AuthResponse.builder()
                 .accessToken(token)
+                .refreshToken(refreshToken.getToken())
                 .tokenType("Bearer")
                 .expiresIn(Long.valueOf(expiredIn))
                 .user(UserResponse.builder()
@@ -50,6 +55,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.getWriter().write("""
                 {
                   "accessToken": "%s",
+                  "refreshToken": "%s",
                   "tokenType": "%s",
                   "expiresIn": %d,
                   "user": {
@@ -60,6 +66,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 }
                 """.formatted(
                 authResponse.getAccessToken(),
+                authResponse.getRefreshToken(),
                 authResponse.getTokenType(),
                 authResponse.getExpiresIn(),
                 authResponse.getUser().getUserId(),

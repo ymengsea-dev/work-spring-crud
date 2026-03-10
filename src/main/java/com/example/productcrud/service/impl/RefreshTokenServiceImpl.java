@@ -31,10 +31,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
 
-        // Delete any existing refresh token for this user (1 token per user)
-        refreshTokenRepository.findByUser(user)
-                .ifPresent(refreshTokenRepository::delete);
-
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUser(user);
         refreshToken.setToken(UUID.randomUUID().toString());
