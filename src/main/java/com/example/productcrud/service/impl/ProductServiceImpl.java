@@ -36,7 +36,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
 
     @Override
-    @Cacheable(value = "products", key = "'all'")
+    @Cacheable(value = "products", key = "'products:' + #query + ':' + #status + ':' + #page + ':' + #size + ':' + #sortBy + ':' + #sortDir")
     public PagedResponse<ProductResponse> getProductPage(String query, ProductStatus status, int page, int size, String sortBy, String sortDir) {
         String keyword = (query == null || query.isBlank()) ? null : query.trim();
         String orderBy = sortBy != null && ALLOWED_SORT_FIELDS.contains(sortBy) ? sortBy : "id";

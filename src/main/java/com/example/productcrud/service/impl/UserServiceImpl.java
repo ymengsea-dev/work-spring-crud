@@ -70,6 +70,7 @@ public class UserServiceImpl implements UserService {
 
             CustomUserDetail userDetails = (CustomUserDetail) authentication.getPrincipal();
             String token = jwtService.generateToken(userDetails);
+            refreshTokenService.deleteByUser(userDetails.getUser());
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUser().getId());
 
             AuthResponse response = AuthResponse.builder()
