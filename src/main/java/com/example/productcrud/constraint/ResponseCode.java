@@ -16,6 +16,9 @@ public enum ResponseCode {
     // User
     USER_CREATED("CREATED",       201, "User created successfully."),
 
+    // file
+    FILE_UPLOAD("CREATED",       201, "File uploaded successfully."),
+
     // Auth
     LOGIN_SUCCESS("SUCCESS",      200, "Login successful."),
     LOGOUT_SUCCESS("SUCCESS",     200, "Logout successful."),

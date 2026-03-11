@@ -26,8 +26,10 @@ public enum ExceptionCode {
     UNAUTHORIZED(401, "Token is missing or invalid."),
     ACCESS_DENIED(403, "You do not have permission to perform this action."), // 403: forbidden
     VALIDATION_ERROR(400, "Request validation error"),
-    INTERNAL_SERVER_ERROR(500, "Inter server error");
+    INTERNAL_SERVER_ERROR(500, "Inter server error"),
 
+    // file
+    FILE_not_SUPPORT(400, "image must be a valid image URL ending with .png, .svg, .jpg, .jpeg, or .gif");
     private final int code;
     private  final String message;
 }

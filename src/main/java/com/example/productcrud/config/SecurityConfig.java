@@ -45,7 +45,8 @@ public class SecurityConfig {
                         "/api/v1/user/**",
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
-                        "/swagger-ui.html"
+                        "/swagger-ui.html",
+                        "/api/v1/files/**"
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/products/**")
                     .hasAnyRole("PRODUCT_READ", "PRODUCT_WRITE")
